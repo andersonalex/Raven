@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol RavenDelegate: AnyObject {
-    func getHttpHeader<T>(endpoint: RavenEndpoint<T>) -> Dictionary<String, String>
+    func getHttpHeader<T>(endpoint: RavenEndpoint<T>) -> [String: String]
     func generateError(fromUrl url: URL, statusCode: HTTPStatusCode, responseData: Data) -> Error
     func decorate(request: URLRequest) -> URLRequest
 
@@ -18,7 +18,7 @@ public protocol RavenDelegate: AnyObject {
 
 // Provide defaults
 public extension RavenDelegate {
-    func getHttpHeader<T>(endpoint: RavenEndpoint<T>) -> Dictionary<String, String> {
+    func getHttpHeader<T>(endpoint: RavenEndpoint<T>) -> [String: String] {
         [:]
     }
 
