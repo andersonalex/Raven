@@ -14,6 +14,10 @@ extension RavenEndpoint {
         .init(
             httpMethod: .post,
             path: "/login",
+            requestBody: [
+                "userName": username,
+                "password": password
+            ],
             responseDataType: LoginResponse.self)
     }
 
@@ -33,7 +37,7 @@ func login() async throws {
 ```
 
 # Endpoints
-A `RavenEndpoint` serves as blueprints for your API - it gives your `Raven` everything it needs to fetch and parse data from this endpoint of your API and it serves as a form of API documentation in your project.
+A `RavenEndpoint` serves as blueprints for your API - it gives your `Raven` everything it needs to fetch and parse data from an endpoint of your API and it serves as a form of API documentation within your project.
 ```swift
 extension RavenEndpoint {
 
@@ -62,11 +66,12 @@ extension RavenEndpoint {
             responseDataType: Donut.self)
     }
 
-    static func getDonut(id: Int) -> RavenEndpoint<Donut> {
+    static func createDonut(_ donutData: Donut) -> RavenEndpoint<EmptyResponse> {
         .init(
-            httpMethod: .get,
-            path: "/donuts/\(id)",
-            responseDataType: Donut.self)
+            httpMethod: .post,
+            path: "/donuts/",
+            requestBody: CreateDonutRequestBody(donutData)
+            responseDataType: EmptyResponse.self)
     }
 
     static func modifyDonut(id: Int, _ donutData: Donut) -> RavenEndpoint<EmptyResponse> {
@@ -81,14 +86,6 @@ extension RavenEndpoint {
         .init(
             httpMethod: .delete,
             path: "/donuts/\(id)",
-            responseDataType: EmptyResponse.self)
-    }
-
-    static func createDonut(_ donutData: Donut) -> RavenEndpoint<EmptyResponse> {
-        .init(
-            httpMethod: .post,
-            path: "/donuts/",
-            requestBody: CreateDonutRequestBody(donutData)
             responseDataType: EmptyResponse.self)
     }
 
