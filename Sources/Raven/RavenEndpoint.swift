@@ -1,5 +1,5 @@
 //
-//  Endpoint.swift
+//  RavenEndpoint.swift
 //  
 //
 //  Created by Alex Anderson on 5/30/23.
@@ -9,7 +9,7 @@ import Foundation
 
 public struct EmptyResponse: Decodable {}
 
-public struct Endpoint<ResponseDataType: Decodable> {
+public struct RavenEndpoint<ResponseDataType: Decodable> {
 
     enum RequestBody {
         case dict(BodyDictionary)

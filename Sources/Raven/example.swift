@@ -12,9 +12,9 @@ struct LoginResponse: Decodable {
     let token: String
 }
 
-extension Endpoint {
+extension RavenEndpoint {
 
-    static func login(username: String, password: String) -> Endpoint<LoginResponse> {
+    static func login(username: String, password: String) -> RavenEndpoint<LoginResponse> {
         .init(
             httpMethod: .post,
             path: "/login",

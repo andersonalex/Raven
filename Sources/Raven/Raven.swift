@@ -21,7 +21,7 @@ public class Raven {
         self.baseURL = baseURL
     }
 
-    private func generateURLRequest<EndpointReturnType>(forEndpoint endpoint: Endpoint<EndpointReturnType>) -> URLRequest? {
+    private func generateURLRequest<EndpointReturnType>(forEndpoint endpoint: RavenEndpoint<EndpointReturnType>) -> URLRequest? {
         guard let url = endpoint.url(fromBase: baseURL) else { return nil }
 
         var request = URLRequest(url: url)
@@ -45,7 +45,7 @@ public class Raven {
         return request
     }
 
-    internal func performRequest<ResponseDataType>(_ endpoint: Endpoint<ResponseDataType>) async throws -> RavenResponse<ResponseDataType> {
+    internal func performRequest<ResponseDataType>(_ endpoint: RavenEndpoint<ResponseDataType>) async throws -> RavenResponse<ResponseDataType> {
 
         guard var request = generateURLRequest(forEndpoint: endpoint), let url = request.url else {
             throw RavenError.invalidEndpoint
