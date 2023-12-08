@@ -8,7 +8,7 @@
 import Foundation
 
 public enum RavenError: Error {
-    case responseError
+    case responseError(HTTPStatusCode)
     case invalidEndpoint
     case unknownError
     case parsingError(Error)

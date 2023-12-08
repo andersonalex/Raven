@@ -21,37 +21,32 @@ public struct RavenEndpoint<ResponseDataType: Decodable> {
     let relativePath: String
     let urlParameters: [String: CustomStringConvertible?]
     let responseDataType: ResponseDataType.Type
-    let requiresAuth: Bool
 
     public init(
         httpMethod: HTTPMethod,
         path: String,
         requestBody: BodyDictionary,
         urlParameters: [String : CustomStringConvertible?] = [:],
-        responseDataType: ResponseDataType.Type = EmptyResponse.self,
-        requiresAuth: Bool
+        responseDataType: ResponseDataType.Type = EmptyResponse.self
     ) {
         self.httpMethod = httpMethod
         self.requestBody = .dict(requestBody)
         self.relativePath = path
         self.urlParameters = urlParameters
         self.responseDataType = responseDataType
-        self.requiresAuth = requiresAuth
     }
 
     public init(
         httpMethod: HTTPMethod,
         path: String,
         urlParameters: [String : CustomStringConvertible?] = [:],
-        responseDataType: ResponseDataType.Type = EmptyResponse.self,
-        requiresAuth: Bool
+        responseDataType: ResponseDataType.Type = EmptyResponse.self
     ) {
         self.httpMethod = httpMethod
         self.requestBody = nil
         self.relativePath = path
         self.urlParameters = urlParameters
         self.responseDataType = responseDataType
-        self.requiresAuth = requiresAuth
     }
 
     public init(
@@ -59,15 +54,13 @@ public struct RavenEndpoint<ResponseDataType: Decodable> {
         path: String,
         requestBody: some Encodable,
         urlParameters: [String : CustomStringConvertible?] = [:],
-        responseDataType: ResponseDataType.Type = EmptyResponse.self,
-        requiresAuth: Bool
+        responseDataType: ResponseDataType.Type = EmptyResponse.self
     ) {
         self.httpMethod = httpMethod
         self.requestBody = .encodable(requestBody)
         self.relativePath = path
         self.urlParameters = urlParameters
         self.responseDataType = responseDataType
-        self.requiresAuth = requiresAuth
     }
 
     func url(fromBase baseURL: URL) -> URL? {

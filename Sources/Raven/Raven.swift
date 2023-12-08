@@ -16,7 +16,7 @@ public class Raven {
 
     private let baseURL: URL
 
-    internal init(delegate: RavenDelegate? = nil, baseURL: URL) {
+    public init(delegate: RavenDelegate? = nil, baseURL: URL) {
         self.delegate = delegate ?? defaultDelegate
         self.baseURL = baseURL
     }
