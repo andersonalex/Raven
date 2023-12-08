@@ -23,7 +23,7 @@ public extension RavenDelegate {
     }
 
     func generateError(fromUrl url: URL, statusCode: HTTPStatusCode, responseData: Data) -> Error {
-        RavenError.responseError
+        RavenError.responseError(statusCode)
     }
 
     func decorate(request: URLRequest) -> URLRequest { request }
