@@ -222,3 +222,8 @@ class MyRavenDelegate: RavenDelegate {
 }
 ```
 Note that if a `generateError()` implementation with a provided delegate does not exist, Raven will return an instance of the default error type: `RavenError`.
+
+## Coming Soon
+- Better documentation
+- Better support for creating a `Raven` mock
+- A full test suite
