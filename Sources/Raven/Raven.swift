@@ -64,7 +64,7 @@ open class Raven {
             request.setValue(value, forHTTPHeaderField: fieldName)
         }
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await delegate.networkRequestHandler.data(for: request)
 
         guard
             let httpResponse = response as? HTTPURLResponse,
@@ -98,26 +98,6 @@ open class Raven {
                 fromUrl: url,
                 statusCode: httpStatus,
                 responseData: data)
-        }
-    }
-
-    private func data(forRequest request: URLRequest) async throws -> (Data, URLResponse) {
-        if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) {
-            return try await URLSession.shared.data(for: request)
-        } else {
-            return try await withUnsafeThrowingContinuation { continuation in
-                let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                    switch (data, response, error) {
-                    case (.some(let data), .some(let response), nil):
-                        continuation.resume(returning: (data, response))
-                    case (_, _, .some(let error)):
-                        continuation.resume(throwing: error)
-                    default:
-                        continuation.resume(throwing: RavenError.unknownError)
-                    }
-                }
-                task.resume()
-            }
         }
     }
     

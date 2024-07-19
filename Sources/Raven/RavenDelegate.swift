@@ -14,6 +14,7 @@ public protocol RavenDelegate: AnyObject {
 
     var jsonEncoder: JSONEncoder { get }
     var jsonDecoder: JSONDecoder { get }
+    var networkRequestHandler: NetworkRequestHandler { get }
 }
 
 // Provide defaults
@@ -30,4 +31,5 @@ public extension RavenDelegate {
 
     var jsonEncoder: JSONEncoder { JSONEncoder() }
     var jsonDecoder: JSONDecoder { JSONDecoder() }
+    var networkRequestHandler: NetworkRequestHandler { URLSession.shared }
 }
