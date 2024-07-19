@@ -6,20 +6,27 @@
 //
 
 import Foundation
+import Combine
 
 class DefaultRavenDelegate: RavenDelegate {}
 
 open class Raven {
+    
+    // MARK: - Private Properties
 
     private let defaultDelegate = DefaultRavenDelegate()
     private unowned var delegate: RavenDelegate
 
     private let baseURL: URL
+    
+    // MARK: - Initializers
 
     public init(delegate: RavenDelegate? = nil, baseURL: URL) {
         self.delegate = delegate ?? defaultDelegate
         self.baseURL = baseURL
     }
+    
+    // MARK: - Private Methods
 
     private func generateURLRequest<EndpointReturnType>(forEndpoint endpoint: RavenEndpoint<EndpointReturnType>) -> URLRequest? {
         guard let url = endpoint.url(fromBase: baseURL) else { return nil }
@@ -45,7 +52,7 @@ open class Raven {
         return request
     }
 
-    internal func performRequest<ResponseDataType>(_ endpoint: RavenEndpoint<ResponseDataType>) async throws -> RavenResponse<ResponseDataType> {
+    private func performRequest<ResponseDataType>(_ endpoint: RavenEndpoint<ResponseDataType>) async throws -> RavenResponse<ResponseDataType> {
 
         guard var request = generateURLRequest(forEndpoint: endpoint), let url = request.url else {
             throw RavenError.invalidEndpoint
@@ -110,6 +117,96 @@ open class Raven {
                     }
                 }
                 task.resume()
+            }
+        }
+    }
+    
+    // MARK: - Public Interface - Structured Concurrency/Async Await
+    
+    func request<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>) async throws -> EndpointReturnType {
+        return (try await self.performRequest(endpoint)).data
+    }
+    
+    func request(_ endpoint: RavenEndpoint<EmptyResponse>) async throws {
+        _ = try await self.performRequest(endpoint)
+    }
+    
+    func fullRequest<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>) async throws -> RavenResponse<EndpointReturnType> {
+        return try await self.performRequest(endpoint)
+    }
+    
+    // MARK: - Public Interface - Callback Closures
+    
+    func request<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>, onComplete: @escaping (Result<EndpointReturnType, Error>) -> Void) {
+        Task.detached {
+            do {
+                let result = try await self.performRequest(endpoint)
+                onComplete(.success(result.data))
+            } catch let error {
+                onComplete(.failure(error))
+            }
+        }
+    }
+    
+    func request<EmptyResponse>(_ endpoint: RavenEndpoint<EmptyResponse>, onComplete: @escaping (Result<Void, Error>) -> Void) {
+        Task.detached {
+            do {
+                _ = try await self.performRequest(endpoint)
+                onComplete(.success(()))
+            } catch let error {
+                onComplete(.failure(error))
+            }
+        }
+    }
+    
+    func fullRequest<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>, onComplete: @escaping (Result<RavenResponse<EndpointReturnType>, Error>) -> Void) {
+        Task.detached {
+            do {
+                let result = try await self.performRequest(endpoint)
+                onComplete(.success(result))
+            } catch let error {
+                onComplete(.failure(error))
+            }
+        }
+    }
+    
+    // MARK: - Public Interface - Combine
+    
+    func request<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>) -> Future<EndpointReturnType, Error> {
+        return Future { promise in
+            Task.detached {
+                do {
+                    let result = try await self.performRequest(endpoint)
+                    promise(.success(result.data))
+                } catch let error {
+                    promise(.failure(error))
+                }
+            }
+        }
+    }
+    
+    func request<EmptyResponse>(_ endpoint: RavenEndpoint<EmptyResponse>) -> Future<Void, Error> {
+        return Future { promise in
+            Task.detached {
+                do {
+                    _ = try await self.performRequest(endpoint)
+                    promise(.success(()))
+                } catch let error {
+                    promise(.failure(error))
+                }
+            }
+        }
+    }
+    
+    func fullRequest<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>) -> Future<RavenResponse<EndpointReturnType>, Error> {
+        return Future { promise in
+            Task.detached {
+                do {
+                    let result = try await self.performRequest(endpoint)
+                    promise(.success(result))
+                } catch let error {
+                    promise(.failure(error))
+                }
             }
         }
     }
