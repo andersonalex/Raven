@@ -15,9 +15,9 @@ struct LoginResponse: Decodable {
     let token: String
 }
 
-extension RavenEndpoint {
+extension Raven.Endpoint {
 
-    static func login(username: String, password: String) -> RavenEndpoint<LoginResponse> {
+    static func login(username: String, password: String) -> Raven.Endpoint<LoginResponse> {
         .init(
             httpMethod: .post,
             path: "/login",
@@ -44,16 +44,16 @@ func login() async throws {
 ```
 
 ## Endpoints
-A `RavenEndpoint` serves as blueprints for your API - it gives your `Raven` everything it needs to fetch and parse data from an endpoint of your API and it serves as a form of API documentation within your project.
+A `Raven.Endpoint` serves as blueprints for your API - it gives your `Raven` everything it needs to fetch and parse data from an endpoint of your API and it serves as a form of API documentation within your project.
 ```swift
-extension RavenEndpoint {
+extension Raven.Endpoint {
 
     static func getDonuts(
         createdFrom: Date? = nil,
         createdTo: Date? = nil,
         pageSize: Int? = nil,
         pageNumber: Int? = nil
-    ) -> RavenEndpoint<PaginatedResponse<Donut>> {
+    ) -> Raven.Endpoint<PaginatedResponse<Donut>> {
         .init(
             httpMethod: .get,
             path: "/donuts",
@@ -66,14 +66,14 @@ extension RavenEndpoint {
             responseDataType: PaginatedResponse<Donut>.self)
     }
 
-    static func getDonut(id: Int) -> RavenEndpoint<Donut> {
+    static func getDonut(id: Int) -> Raven.Endpoint<Donut> {
         .init(
             httpMethod: .get,
             path: "/donuts/\(id)",
             responseDataType: Donut.self)
     }
 
-    static func createDonut(_ donutData: Donut) -> RavenEndpoint<EmptyResponse> {
+    static func createDonut(_ donutData: Donut) -> Raven.Endpoint<EmptyResponse> {
         .init(
             httpMethod: .post,
             path: "/donuts/",
@@ -81,7 +81,7 @@ extension RavenEndpoint {
             responseDataType: EmptyResponse.self)
     }
 
-    static func modifyDonut(id: Int, _ donutData: Donut) -> RavenEndpoint<EmptyResponse> {
+    static func modifyDonut(id: Int, _ donutData: Donut) -> Raven.Endpoint<EmptyResponse> {
         .init(
             httpMethod: .put,
             path: "/donuts/\(id)",
@@ -89,7 +89,7 @@ extension RavenEndpoint {
             responseDataType: EmptyResponse.self)
     }
 
-    static func deleteDonut(id: Int) -> RavenEndpoint<EmptyResponse> {
+    static func deleteDonut(id: Int) -> Raven.Endpoint<EmptyResponse> {
         .init(
             httpMethod: .delete,
             path: "/donuts/\(id)",
@@ -101,9 +101,9 @@ extension RavenEndpoint {
 A request body can be specified using either an encodable OR a dictionary
 ```swift
 // dictionary implementation
-extension RavenEndpoint {
+extension Raven.Endpoint {
 
-    static func changePassword(currentPassword: String, newPassword: String) -> RavenEndpoint<EmptyResponse> {
+    static func changePassword(currentPassword: String, newPassword: String) -> Raven.Endpoint<EmptyResponse> {
         .init(
             httpMethod: .put,
             path: "/User/password",
@@ -124,9 +124,9 @@ struct ChangePasswordRequestBody: Encodable {
     let newPassword: String
 }
 
-extension RavenEndpoint {
+extension Raven.Endpoint {
 
-    static func changePassword(currentPassword: String, newPassword: String) -> RavenEndpoint<EmptyResponse> {
+    static func changePassword(currentPassword: String, newPassword: String) -> Raven.Endpoint<EmptyResponse> {
         .init(
             httpMethod: .put,
             path: "/User/password",
@@ -190,22 +190,28 @@ class LoginService {
 }
 ```
 
-## RavenDelegate
-In order to provide more specific functionality, you can create a delegate class that conforms to `RavenDelegate`. This delegate can intervene during certain stages of Raven's procedures to attach headers, provide json encoders and decoders, decorate requests, and provide errors. Defaults to all of these methods are provided, so you can implement only the methods you need.
+## Raven Delegate
+In order to provide more specific functionality, you can create a delegate class that conforms to `Raven.Delegate`. This delegate can intervene during certain stages of Raven's procedures to attach headers, provide json encoders and decoders, decorate requests, provide errors, and even provide a custom request handler in place of URLSession (e.g. for testing). Defaults to all of these methods are provided, so you can implement only the pieces you need.
 ```swift
-public protocol RavenDelegate: AnyObject {
-    func getHttpHeader<T>(endpoint: RavenEndpoint<T>) -> [String: String]
-    func generateError(fromUrl url: URL, statusCode: HTTPStatusCode, responseData: Data) -> Error
-    func decorate(request: URLRequest) -> URLRequest
-
-    var jsonEncoder: JSONEncoder { get }
-    var jsonDecoder: JSONDecoder { get }
+public extension Raven {
+    
+    protocol Delegate: AnyObject {
+        func getHttpHeader<T>(endpoint: Raven.Endpoint<T>) -> [String: String]
+        func generateError(fromUrl url: URL, statusCode: HTTPStatusCode, responseData: Data) -> Error
+        func decorate(request: URLRequest) -> URLRequest
+        
+        var jsonEncoder: JSONEncoder { get }
+        var jsonDecoder: JSONDecoder { get }
+        var networkRequestHandler: NetworkRequestHandler { get }
+    }
+    
 }
+
 ```
 ### Errors
-The fact that errors will occur when interfacing with an API is not an after thought for Raven, it's an assumption that's baked in to Raven's design. Different APIs will have different types of errors that frontend software will have to handle differently. Since Raven could never account for all of the different types of errors that any API could produce, Raven provides a method for the developer to generate their own errors given an HTTP response with an unsuccessful status code (in the 400s). This is the `generateError()` method of `RavenDelegate`:
+The fact that errors will occur when interfacing with an API is not an after thought for Raven, it's an assumption that's baked in to Raven's design. Different APIs will have different types of errors that frontend software will have to handle differently. Since Raven could never account for all of the different types of errors that any API could produce, Raven provides a method for the developer to generate their own errors given an HTTP response with an unsuccessful status code (in the 400s). This is the `generateError()` method of `Raven.Delegate`:
 ```swift
-class MyRavenDelegate: RavenDelegate {
+class MyRavenDelegate: Raven.Delegate {
     struct MyErrorType: Error, Decodable {
         let code: Int
         let message: String

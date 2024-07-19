@@ -7,19 +7,26 @@
 
 import Foundation
 
-public protocol RavenDelegate: AnyObject {
-    func getHttpHeader<T>(endpoint: RavenEndpoint<T>) -> [String: String]
-    func generateError(fromUrl url: URL, statusCode: HTTPStatusCode, responseData: Data) -> Error
-    func decorate(request: URLRequest) -> URLRequest
-
-    var jsonEncoder: JSONEncoder { get }
-    var jsonDecoder: JSONDecoder { get }
-    var networkRequestHandler: NetworkRequestHandler { get }
+public extension Raven {
+    
+    class DefaultDelegate: Raven.Delegate {}
+    
+    protocol Delegate: AnyObject {
+        func getHttpHeader<T>(endpoint: Raven.Endpoint<T>) -> [String: String]
+        func generateError(fromUrl url: URL, statusCode: HTTPStatusCode, responseData: Data) -> Error
+        func decorate(request: URLRequest) -> URLRequest
+        
+        var jsonEncoder: JSONEncoder { get }
+        var jsonDecoder: JSONDecoder { get }
+        var networkRequestHandler: NetworkRequestHandler { get }
+    }
+    
 }
 
+
 // Provide defaults
-public extension RavenDelegate {
-    func getHttpHeader<T>(endpoint: RavenEndpoint<T>) -> [String: String] {
+public extension Raven.Delegate {
+    func getHttpHeader<T>(endpoint: Raven.Endpoint<T>) -> [String: String] {
         [:]
     }
 
@@ -31,5 +38,5 @@ public extension RavenDelegate {
 
     var jsonEncoder: JSONEncoder { JSONEncoder() }
     var jsonDecoder: JSONDecoder { JSONDecoder() }
-    var networkRequestHandler: NetworkRequestHandler { URLSession.shared }
+    var networkRequestHandler: Raven.NetworkRequestHandler { URLSession.shared }
 }
