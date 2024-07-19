@@ -9,7 +9,7 @@ import Foundation
 
 class DefaultRavenDelegate: RavenDelegate {}
 
-public class Raven {
+open class Raven {
 
     private let defaultDelegate = DefaultRavenDelegate()
     private unowned var delegate: RavenDelegate
