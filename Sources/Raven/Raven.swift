@@ -123,21 +123,21 @@ open class Raven {
     
     // MARK: - Public Interface - Structured Concurrency/Async Await
     
-    public func request<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>) async throws -> EndpointReturnType {
+    open func request<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>) async throws -> EndpointReturnType {
         return (try await self.performRequest(endpoint)).data
     }
     
-    public func request(_ endpoint: RavenEndpoint<EmptyResponse>) async throws {
+    open func request(_ endpoint: RavenEndpoint<EmptyResponse>) async throws {
         _ = try await self.performRequest(endpoint)
     }
     
-    public func fullRequest<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>) async throws -> RavenResponse<EndpointReturnType> {
+    open func fullRequest<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>) async throws -> RavenResponse<EndpointReturnType> {
         return try await self.performRequest(endpoint)
     }
     
     // MARK: - Public Interface - Callback Closures
     
-    public func request<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>, onComplete: @escaping (Result<EndpointReturnType, Error>) -> Void) {
+    open func request<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>, onComplete: @escaping (Result<EndpointReturnType, Error>) -> Void) {
         Task.detached {
             do {
                 let result = try await self.performRequest(endpoint)
@@ -148,7 +148,7 @@ open class Raven {
         }
     }
     
-    public func request<EmptyResponse>(_ endpoint: RavenEndpoint<EmptyResponse>, onComplete: @escaping (Result<Void, Error>) -> Void) {
+    open func request<EmptyResponse>(_ endpoint: RavenEndpoint<EmptyResponse>, onComplete: @escaping (Result<Void, Error>) -> Void) {
         Task.detached {
             do {
                 _ = try await self.performRequest(endpoint)
@@ -159,7 +159,7 @@ open class Raven {
         }
     }
     
-    public func fullRequest<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>, onComplete: @escaping (Result<RavenResponse<EndpointReturnType>, Error>) -> Void) {
+    open func fullRequest<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>, onComplete: @escaping (Result<RavenResponse<EndpointReturnType>, Error>) -> Void) {
         Task.detached {
             do {
                 let result = try await self.performRequest(endpoint)
@@ -172,7 +172,7 @@ open class Raven {
     
     // MARK: - Public Interface - Combine
     
-    public func request<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>) -> Future<EndpointReturnType, Error> {
+    open func request<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>) -> Future<EndpointReturnType, Error> {
         return Future { promise in
             Task.detached {
                 do {
@@ -185,7 +185,7 @@ open class Raven {
         }
     }
     
-    public func request<EmptyResponse>(_ endpoint: RavenEndpoint<EmptyResponse>) -> Future<Void, Error> {
+    open func request<EmptyResponse>(_ endpoint: RavenEndpoint<EmptyResponse>) -> Future<Void, Error> {
         return Future { promise in
             Task.detached {
                 do {
@@ -198,7 +198,7 @@ open class Raven {
         }
     }
     
-    public func fullRequest<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>) -> Future<RavenResponse<EndpointReturnType>, Error> {
+    open func fullRequest<EndpointReturnType>(_ endpoint: RavenEndpoint<EndpointReturnType>) -> Future<RavenResponse<EndpointReturnType>, Error> {
         return Future { promise in
             Task.detached {
                 do {
