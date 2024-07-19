@@ -191,16 +191,22 @@ class LoginService {
 ```
 
 ## Raven Delegate
-In order to provide more specific functionality, you can create a delegate class that conforms to `Raven.Delegate`. This delegate can intervene during certain stages of Raven's procedures to attach headers, provide json encoders and decoders, decorate requests, and provide errors. Defaults to all of these methods are provided, so you can implement only the methods you need.
+In order to provide more specific functionality, you can create a delegate class that conforms to `Raven.Delegate`. This delegate can intervene during certain stages of Raven's procedures to attach headers, provide json encoders and decoders, decorate requests, provide errors, and even provide a custom request handler in place of URLSession (e.g. for testing). Defaults to all of these methods are provided, so you can implement only the pieces you need.
 ```swift
-public protocol Raven.Delegate: AnyObject {
-    func getHttpHeader<T>(endpoint: Raven.Endpoint<T>) -> [String: String]
-    func generateError(fromUrl url: URL, statusCode: HTTPStatusCode, responseData: Data) -> Error
-    func decorate(request: URLRequest) -> URLRequest
-
-    var jsonEncoder: JSONEncoder { get }
-    var jsonDecoder: JSONDecoder { get }
+public extension Raven {
+    
+    protocol Delegate: AnyObject {
+        func getHttpHeader<T>(endpoint: Raven.Endpoint<T>) -> [String: String]
+        func generateError(fromUrl url: URL, statusCode: HTTPStatusCode, responseData: Data) -> Error
+        func decorate(request: URLRequest) -> URLRequest
+        
+        var jsonEncoder: JSONEncoder { get }
+        var jsonDecoder: JSONDecoder { get }
+        var networkRequestHandler: NetworkRequestHandler { get }
+    }
+    
 }
+
 ```
 ### Errors
 The fact that errors will occur when interfacing with an API is not an after thought for Raven, it's an assumption that's baked in to Raven's design. Different APIs will have different types of errors that frontend software will have to handle differently. Since Raven could never account for all of the different types of errors that any API could produce, Raven provides a method for the developer to generate their own errors given an HTTP response with an unsuccessful status code (in the 400s). This is the `generateError()` method of `Raven.Delegate`:
