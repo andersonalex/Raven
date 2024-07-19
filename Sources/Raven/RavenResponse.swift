@@ -7,8 +7,12 @@
 
 import Foundation
 
-public struct RavenResponse<ResponseDataType> {
-    let statusCode: HTTPStatusCode
-    let header: [AnyHashable: Any]
-    let data: ResponseDataType
+public extension Raven {
+    
+    struct Response<ResponseDataType> {
+        let statusCode: HTTPStatusCode
+        let header: [AnyHashable: Any]
+        let data: ResponseDataType
+    }
+    
 }

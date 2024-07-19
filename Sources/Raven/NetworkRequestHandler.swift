@@ -7,10 +7,14 @@
 
 import Foundation
 
-public protocol NetworkRequestHandler {
+public extension Raven {
     
-    func data(for request: URLRequest) async throws -> (Data, URLResponse)
+    protocol NetworkRequestHandler {
+        
+        func data(for request: URLRequest) async throws -> (Data, URLResponse)
+        
+    }
     
 }
 
-extension URLSession: NetworkRequestHandler {}
+extension URLSession: Raven.NetworkRequestHandler {}
